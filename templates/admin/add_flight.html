@@ -1,0 +1,80 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Add Flight — Admin{% endblock %}
+{% block page_title %}Add New Flight{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-9">
+    <div class="data-card">
+      <div class="data-card-header">
+        <h6><i class="bi bi-plus-circle-fill me-2" style="color:var(--gold)"></i>New Flight Details</h6>
+        <a href="{{ url_for('admin_flights') }}" class="btn btn-sm btn-navy">← Back</a>
+      </div>
+      <div class="p-4">
+        <form action="{{ url_for('admin_add_flight') }}" method="post">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Flight Number</label>
+              <input type="text" name="flight_number" class="form-control" placeholder="e.g. KA-701" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Origin</label>
+              <input type="text" name="origin" class="form-control" placeholder="City name" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Destination</label>
+              <input type="text" name="destination" class="form-control" placeholder="City name" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Departure Date</label>
+              <input type="date" name="departure_date" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Departure Time</label>
+              <input type="time" name="departure_time" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Arrival Time</label>
+              <input type="time" name="arrival_time" class="form-control" required>
+            </div>
+            <div class="col-12"><hr style="border-color:#f3f4f6"><p style="font-weight:600;color:var(--navy);font-size:0.875rem">Pricing (₹ per passenger)</p></div>
+            <div class="col-md-4">
+              <label class="form-label">Economy Price</label>
+              <div class="input-group"><span class="input-group-text">₹</span>
+              <input type="number" name="economy_price" class="form-control" min="0" step="0.01" placeholder="2500" required></div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Business Price</label>
+              <div class="input-group"><span class="input-group-text">₹</span>
+              <input type="number" name="business_price" class="form-control" min="0" step="0.01" placeholder="5500" required></div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">First Class Price</label>
+              <div class="input-group"><span class="input-group-text">₹</span>
+              <input type="number" name="first_class_price" class="form-control" min="0" step="0.01" placeholder="9500" required></div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Total Seats</label>
+              <input type="number" name="total_seats" class="form-control" min="1" value="150" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Status</label>
+              <select name="status" class="form-select">
+                <option value="scheduled">Scheduled</option>
+                <option value="delayed">Delayed</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+            <div class="col-12 mt-3">
+              <button type="submit" class="btn btn-gold px-5 py-2" style="font-size:1rem">
+                <i class="bi bi-plus-lg me-2"></i>Add Flight
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

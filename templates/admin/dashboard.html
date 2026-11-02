@@ -1,0 +1,109 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Dashboard — Admin{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stat Cards -->
+<div class="row g-4 mb-4">
+  {% set stats = [
+    ('bi-airplane-fill','#3b82f6','rgba(59,130,246,0.1)', total_flights,   'Total Flights',   'All routes'),
+    ('bi-ticket-detailed-fill','#22c55e','rgba(34,197,94,0.1)', total_bookings,'Bookings','Confirmed'),
+    ('bi-people-fill','#8b5cf6','rgba(139,92,246,0.1)', total_users,    'Registered Users','Members'),
+    ('bi-currency-rupee','#c9a84c','rgba(201,168,76,0.1)', '₹{:,.0f}'.format(total_revenue), 'Revenue','Total earnings'),
+  ] %}
+  {% for icon, color, bg, value, label, sub in stats %}
+  <div class="col-lg-3 col-md-6">
+    <div class="stat-card">
+      <div class="stat-card-body">
+        <div class="d-flex align-items-start justify-content-between">
+          <div>
+            <div class="stat-label text-uppercase" style="font-size:0.72rem;letter-spacing:1px;margin-bottom:0.5rem">{{ label }}</div>
+            <div class="stat-number">{{ value }}</div>
+            <div style="font-size:0.75rem;color:#9ca3af;margin-top:0.3rem">{{ sub }}</div>
+          </div>
+          <div class="stat-icon" style="background:{{ bg }};color:{{ color }}">
+            <i class="bi {{ icon }}"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="row g-4">
+  <!-- Recent Bookings -->
+  <div class="col-lg-8">
+    <div class="data-card">
+      <div class="data-card-header">
+        <h6><i class="bi bi-clock-history me-2" style="color:var(--gold)"></i>Recent Bookings</h6>
+        <a href="{{ url_for('admin_bookings') }}" class="btn btn-sm btn-navy">View All</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Reference</th><th>Passenger</th><th>Route</th><th>Amount</th><th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in recent_bookings %}
+            <tr>
+              <td><code style="font-size:0.8rem;color:var(--sky)">{{ b.booking_reference }}</code></td>
+              <td><div style="font-weight:600">{{ b.passenger_name }}</div></td>
+              <td><span style="font-size:0.8rem">{{ b.origin }} → {{ b.destination }}</span></td>
+              <td><strong style="color:var(--navy)">₹{{ "{:,.0f}".format(b.total_price) }}</strong></td>
+              <td><span style="font-size:0.78rem;color:#9ca3af">{{ b.booked_at.strftime('%d %b, %H:%M') if b.booked_at else '-' }}</span></td>
+            </tr>
+            {% endfor %}
+            {% if not recent_bookings %}
+            <tr><td colspan="5" class="text-center py-4" style="color:#9ca3af">No bookings yet</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Class Breakdown -->
+  <div class="col-lg-4">
+    <div class="data-card h-100">
+      <div class="data-card-header">
+        <h6><i class="bi bi-pie-chart-fill me-2" style="color:var(--gold)"></i>Bookings by Class</h6>
+      </div>
+      <div class="p-4">
+        {% if class_stats %}
+          {% for cs in class_stats %}
+          {% set cls = cs.seat_class %}
+          <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="badge-status {% if cls=='economy' %}badge-economy{% elif cls=='business' %}badge-business{% else %}badge-first{% endif %}">
+                {{ cls.replace('_',' ').title() }}
+              </span>
+              <span style="font-size:0.85rem;font-weight:600;color:var(--navy)">{{ cs.cnt }}</span>
+            </div>
+            <div style="height:6px;background:#f3f4f6;border-radius:3px;overflow:hidden">
+              {% set pct = (cs.cnt / total_bookings * 100)|int if total_bookings > 0 else 0 %}
+              <div style="width:{{ pct }}%;height:100%;background:{% if cls=='economy' %}#22c55e{% elif cls=='business' %}var(--sky){% else %}var(--gold){% endif %};border-radius:3px"></div>
+            </div>
+            <div style="font-size:0.72rem;color:#9ca3af;margin-top:0.2rem">Revenue: ₹{{ "{:,.0f}".format(cs.revenue) }}</div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <p style="color:#9ca3af;text-align:center;padding:2rem 0">No data yet</p>
+        {% endif %}
+
+        <hr style="border-color:#f3f4f6;margin:1.5rem 0">
+        <div class="d-grid gap-2">
+          <a href="{{ url_for('admin_flights') }}" class="btn btn-gold btn-sm">
+            <i class="bi bi-airplane me-1"></i>Manage Flights
+          </a>
+          <a href="{{ url_for('admin_add_flight') }}" class="btn btn-navy btn-sm">
+            <i class="bi bi-plus-lg me-1"></i>Add Flight
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

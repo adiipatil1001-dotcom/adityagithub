@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% block title %}Book Flight {{ flight.flight_number }} — Kolhapur Airlines{% endblock %}
+
+{% block extra_style %}
+.page-header {
+background: linear-gradient(135deg, var(--navy), #112240);
+padding: 3rem 0 2rem;
+}
+.booking-layout { display: grid; grid-template-columns: 1fr 360px; gap: 2rem; align-items: start; }
+@media(max-width:991px) { .booking-layout { grid-template-columns: 1fr; } }
+
+.booking-card {
+background: var(--white); border-radius: 20px;
+box-shadow: 0 4px 30px rgba(10,22,40,0.1);
+overflow: hidden; border: none;
+}
+.booking-card-header {
+background: linear-gradient(135deg, var(--navy), #1a3060);
+padding: 1.5rem 2rem;
+color: var(--white);
+}
+.booking-card-body { padding: 2rem; }
+
+.form-label-ka {
+font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
+letter-spacing: 0.5px; color: #374151; margin-bottom: 0.4rem;
+}
+.form-control-ka, .form-select-ka {
+border: 1.5px solid #e5e7eb;
+border-radius: 10px; padding: 0.75rem 1rem;
+font-size: 0.95rem; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-control-ka:focus, .form-select-ka:focus {
+border-color: var(--gold);
+box-shadow: 0 0 0 3px rgba(201,168,76,0.15); outline: none;
+}
+
+.class-option { display:none; }
+.class-label {
+display:block; cursor:pointer; border-radius:12px;
+border:2px solid #e5e7eb; padding:1rem; text-align:center;
+transition:all 0.2s;
+}
+.class-option:checked + .class-label {
+border-color:var(--gold);
+background:rgba(201,168,76,0.08);
+}
+
+.summary-card {
+background:var(--white); border-radius:20px;
+box-shadow:0 4px 30px rgba(10,22,40,0.1);
+position:sticky; top:90px;
+overflow:hidden;
+}
+.summary-header {
+background:linear-gradient(135deg,var(--gold),var(--gold-lt));
+padding:1.2rem 1.5rem;
+font-weight:700;
+}
+.summary-body{padding:1.5rem;}
+.summary-row{
+display:flex; justify-content:space-between;
+padding:0.6rem 0; border-bottom:1px solid #f3f4f6;
+}
+.summary-row:last-child{border-bottom:none;}
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+<div class="container">
+<h1 style="color:#fff">Book Your Flight</h1>
+<p style="color:rgba(255,255,255,0.55)">
+Flight {{ flight.flight_number }} · {{ flight.origin }} → {{ flight.destination }}
+</p>
+</div>
+</div>
+
+<div class="container py-5">
+<div class="booking-layout">
+
+<div>
+
+<form action="{{ url_for('book', flight_id=flight.id) }}" method="post">
+
+<!-- Passenger Info -->
+
+<div class="booking-card mb-4">
+<div class="booking-card-header">
+<h5 class="mb-0">Passenger Information</h5>
+</div>
+
+<div class="booking-card-body">
+
+<div class="row g-3">
+
+<div class="col-12">
+<label class="form-label-ka">Full Name</label>
+<input type="text" name="passenger_name"
+class="form-control form-control-ka"
+value="{{ prefill.get('full_name','') }}" required>
+</div>
+
+<div class="col-md-6">
+<label class="form-label-ka">Email</label>
+<input type="email" name="passenger_email"
+class="form-control form-control-ka"
+value="{{ prefill.get('email','') }}" required>
+</div>
+
+<div class="col-md-6">
+<label class="form-label-ka">Phone</label>
+<input type="tel" name="passenger_phone"
+class="form-control form-control-ka"
+value="{{ prefill.get('phone','') }}" required>
+</div>
+
+<div class="col-md-6">
+<label class="form-label-ka">Number of Passengers</label>
+
+<select name="num_passengers"
+class="form-select form-select-ka"
+id="numPass">
+
+{% if flight.available_seats <= 10 %}
+{% for i in range(1, flight.available_seats + 1) %}
+
+<option value="{{ i }}">{{ i }} Passenger{% if i>1 %}s{% endif %}</option>
+{% endfor %}
+{% else %}
+{% for i in range(1,11) %}
+<option value="{{ i }}">{{ i }} Passenger{% if i>1 %}s{% endif %}</option>
+{% endfor %}
+{% endif %}
+
+</select>
+
+</div>
+
+</div>
+</div>
+</div>
+
+<!-- Seat Class -->
+
+<div class="booking-card mb-4">
+<div class="booking-card-header">
+<h5 class="mb-0">Select Seat Class</h5>
+</div>
+
+<div class="booking-card-body">
+
+<div class="row g-3">
+
+<div class="col-md-4">
+<input type="radio" name="seat_class" id="eco"
+value="economy" class="class-option" checked>
+<label for="eco" class="class-label">
+<strong>Economy</strong><br>
+₹{{ flight.economy_price }}
+</label>
+</div>
+
+<div class="col-md-4">
+<input type="radio" name="seat_class" id="biz"
+value="business" class="class-option">
+<label for="biz" class="class-label">
+<strong>Business</strong><br>
+₹{{ flight.business_price }}
+</label>
+</div>
+
+<div class="col-md-4">
+<input type="radio" name="seat_class" id="first"
+value="first_class" class="class-option">
+<label for="first" class="class-label">
+<strong>First Class</strong><br>
+₹{{ flight.first_class_price }}
+</label>
+</div>
+
+</div>
+
+</div>
+</div>
+
+<button type="submit"
+class="btn btn-gold w-100 py-3">
+Confirm Booking </button>
+
+</form>
+</div>
+
+<!-- Sidebar -->
+
+<div>
+<div class="summary-card">
+
+<div class="summary-header">
+Booking Summary
+</div>
+
+<div class="summary-body">
+
+<div class="summary-row">
+<div>Route</div>
+<div>{{ flight.origin }} → {{ flight.destination }}</div>
+</div>
+
+<div class="summary-row">
+<div>Flight</div>
+<div>{{ flight.flight_number }}</div>
+</div>
+
+<div class="summary-row">
+<div>Price</div>
+<div>₹{{ "{:,.0f}".format(flight.economy_price) }}</div>
+</div>
+
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+{% endblock %}

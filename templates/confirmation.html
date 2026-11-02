@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+{% block title %}Booking Confirmed — Kolhapur Airlines{% endblock %}
+
+{% block extra_style %}
+.confirm-hero {
+  background: linear-gradient(135deg, #0f4c2e, #1a7a4a);
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.checkmark-circle {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  font-size: 2.5rem;
+}
+
+.ref-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.15);
+  border-radius: 12px;
+  padding: 0.6rem 1.5rem;
+  font-family: monospace;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #fff;
+  margin-top: 1rem;
+}
+
+.ticket-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 40px rgba(10,22,40,0.12);
+  overflow: hidden;
+  max-width: 700px;
+  margin: auto;
+}
+
+.ticket-header {
+  background: linear-gradient(135deg, var(--navy), #1a3060);
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  color: white;
+}
+
+.ticket-body {
+  padding: 2rem;
+}
+
+.detail-row {
+  padding: 0.9rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  text-transform: uppercase;
+}
+
+.detail-value {
+  font-weight: 600;
+  color: var(--navy);
+}
+{% endblock %}
+
+{% block content %}
+
+<!-- Confirmation Header -->
+<div class="confirm-hero">
+  <div class="checkmark-circle">✓</div>
+  <h1 style="color:white">Booking Confirmed!</h1>
+
+  <p style="color:rgba(255,255,255,0.75)">
+    Your flight has been successfully booked.
+  </p>
+
+  <div class="ref-badge">
+    {{ booking.booking_reference }}
+  </div>
+
+  <p style="color:rgba(255,255,255,0.6);font-size:0.85rem">
+    Confirmation sent to {{ booking.passenger_email }}
+  </p>
+</div>
+
+<!-- Ticket Card -->
+<div class="container py-5">
+
+<div class="ticket-card">
+
+<!-- Header -->
+<div class="ticket-header">
+
+<div>
+✈️ Kolhapur Airlines
+</div>
+
+<div>
+Flight {{ booking.flight_number }}
+</div>
+
+</div>
+
+<div class="ticket-body">
+
+<!-- Route -->
+<div class="row text-center mb-4">
+
+<div class="col">
+<div style="font-size:0.8rem;color:gray">From</div>
+<div style="font-size:1.8rem;font-weight:bold">
+{{ booking.origin }}
+</div>
+<div style="color:#6b7280">
+{{ booking.departure_time }}
+</div>
+</div>
+
+<div class="col-2" style="font-size:1.5rem">
+✈
+</div>
+
+<div class="col">
+<div style="font-size:0.8rem;color:gray">To</div>
+<div style="font-size:1.8rem;font-weight:bold">
+{{ booking.destination }}
+</div>
+<div style="color:#6b7280">
+{{ booking.arrival_time }}
+</div>
+</div>
+
+</div>
+
+
+<!-- Passenger Details -->
+
+<div class="row">
+
+<div class="col-md-6">
+
+<div class="detail-row">
+<div class="detail-label">Passenger Name</div>
+<div class="detail-value">{{ booking.passenger_name }}</div>
+</div>
+
+<div class="detail-row">
+<div class="detail-label">Email</div>
+<div class="detail-value">{{ booking.passenger_email }}</div>
+</div>
+
+<div class="detail-row">
+<div class="detail-label">Phone</div>
+<div class="detail-value">{{ booking.passenger_phone }}</div>
+</div>
+
+</div>
+
+
+<div class="col-md-6">
+
+<div class="detail-row">
+<div class="detail-label">Date</div>
+<div class="detail-value">
+{{ booking.departure_date }}
+</div>
+</div>
+
+<div class="detail-row">
+<div class="detail-label">Seat Class</div>
+<div class="detail-value">
+{{ booking.seat_class.replace('_',' ').title() }}
+</div>
+</div>
+
+<div class="detail-row">
+<div class="detail-label">Passengers</div>
+<div class="detail-value">
+{{ booking.num_passengers }}
+</div>
+</div>
+
+</div>
+
+</div>
+
+
+<!-- Total -->
+
+<div style="margin-top:25px;padding:20px;background:#0a1628;border-radius:10px;color:white">
+
+<div style="display:flex;justify-content:space-between">
+
+<div>
+<div style="font-size:0.8rem;color:#ccc">Booking Reference</div>
+<div style="font-family:monospace;font-size:1rem">
+{{ booking.booking_reference }}
+</div>
+</div>
+
+<div style="text-align:right">
+<div style="font-size:0.8rem;color:#ccc">Total Amount</div>
+<div style="font-size:1.7rem;color:gold;font-weight:bold">
+₹{{ "{:,.0f}".format(booking.total_price) }}
+</div>
+</div>
+
+</div>
+
+</div>
+
+
+<!-- Buttons -->
+
+<div style="text-align:center;margin-top:30px">
+
+<button onclick="window.print()" class="btn btn-dark">
+Print Ticket
+</button>
+
+<a href="{{ url_for('flights') }}" class="btn btn-warning">
+Book Another Flight
+</a>
+
+<a href="{{ url_for('index') }}" class="btn btn-secondary">
+Home
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% block title %}Flights — Kolhapur Airlines{% endblock %}
+
+{% block extra_style %}
+.page-header {
+  background: linear-gradient(135deg, var(--navy) 0%, #112240 100%);
+  padding: 3.5rem 0 2rem;
+  position: relative; overflow: hidden;
+}
+.page-header::after {
+  content: '✈';
+  position: absolute; right: 8%; top: 50%;
+  transform: translateY(-50%);
+  font-size: 8rem; opacity: 0.05;
+}
+.filter-card {
+  background: var(--white); border-radius: 16px;
+  padding: 1.8rem; box-shadow: 0 4px 24px rgba(10,22,40,0.08);
+  border: none; margin-top: -2rem; position: relative; z-index: 10;
+}
+.flight-card {
+  background: var(--white); border-radius: 16px;
+  border: none; overflow: hidden;
+  box-shadow: 0 3px 16px rgba(10,22,40,0.07);
+  transition: transform 0.25s, box-shadow 0.25s;
+  margin-bottom: 1.2rem;
+}
+.flight-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(10,22,40,0.12); }
+.flight-header {
+  background: linear-gradient(135deg, var(--navy), #1a3060);
+  padding: 0.8rem 1.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.flight-number {
+  font-family: 'Playfair Display', serif;
+  color: var(--gold); font-weight: 700; font-size: 1rem;
+}
+.flight-status {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.5px;
+  border-radius: 20px; padding: 0.2rem 0.7rem;
+}
+.status-scheduled { background: rgba(34,197,94,0.15); color: #22c55e; }
+.flight-body { padding: 1.5rem; }
+.route-display {
+  display: flex; align-items: center; gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.city-name { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--navy); }
+.city-time { font-size: 0.85rem; color: #6b7280; margin-top: 2px; }
+.route-line {
+  flex: 1; display: flex; align-items: center;
+  justify-content: center; flex-direction: column;
+  min-width: 80px;
+}
+.route-line .line {
+  width: 100%; height: 1.5px;
+  background: linear-gradient(90deg, #e5e7eb, var(--gold), #e5e7eb);
+  position: relative;
+}
+.route-line .plane-icon {
+  font-size: 1.2rem; margin-bottom: 0.2rem;
+  animation: fly 3s ease-in-out infinite;
+}
+@keyframes fly { 0%,100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
+.price-tag {
+  text-align: right;
+}
+.price-amount {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem; font-weight: 700; color: var(--navy);
+}
+.price-class { font-size: 0.72rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px; }
+.seats-badge {
+  background: linear-gradient(135deg, rgba(10,22,40,0.08), rgba(10,22,40,0.05));
+  border-radius: 20px; padding: 0.25rem 0.75rem;
+  font-size: 0.8rem; color: #4b5563; font-weight: 500;
+}
+.price-options {
+  display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;
+}
+.price-pill {
+  border-radius: 20px; padding: 0.2rem 0.7rem; font-size: 0.75rem; font-weight: 600;
+  border: 1.5px solid;
+}
+.price-eco { border-color: #22c55e; color: #22c55e; }
+.price-biz { border-color: var(--sky); color: var(--sky); }
+.price-first { border-color: var(--gold); color: var(--gold); }
+.no-flights {
+  text-align: center; padding: 5rem 2rem;
+  color: #6b7280;
+}
+.no-flights .icon { font-size: 4rem; margin-bottom: 1rem; opacity: 0.4; }
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb" style="--bs-breadcrumb-divider-color:rgba(255,255,255,0.3)">
+        <li class="breadcrumb-item"><a href="{{ url_for('index') }}" style="color:rgba(255,255,255,0.5);text-decoration:none">Home</a></li>
+        <li class="breadcrumb-item active" style="color:var(--gold)">Flights</li>
+      </ol>
+    </nav>
+    <h1 style="font-family:'Playfair Display',serif;color:#fff;font-size:2.2rem;font-weight:700">Available Flights</h1>
+    <p style="color:rgba(255,255,255,0.55);margin-top:0.5rem">Find and book your perfect flight</p>
+  </div>
+</div>
+
+<div class="container pb-5">
+  <!-- Filter Card -->
+  <div class="filter-card mb-4">
+    <form method="get" action="{{ url_for('flights') }}">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label fw-600" style="font-size:0.8rem;color:#374151;text-transform:uppercase;letter-spacing:0.5px">From</label>
+          <select name="origin" class="form-select">
+            <option value="">All Origins</option>
+            {% for o in origins %}
+            <option value="{{ o }}" {% if o == selected_origin %}selected{% endif %}>{{ o }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-600" style="font-size:0.8rem;color:#374151;text-transform:uppercase;letter-spacing:0.5px">To</label>
+          <select name="destination" class="form-select">
+            <option value="">All Destinations</option>
+            {% for d in destinations %}
+            <option value="{{ d }}" {% if d == selected_destination %}selected{% endif %}>{{ d }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-600" style="font-size:0.8rem;color:#374151;text-transform:uppercase;letter-spacing:0.5px">Date</label>
+          <input type="date" name="date" class="form-control" value="{{ selected_date }}">
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+          <button type="submit" class="btn btn-navy flex-fill"><i class="bi bi-search me-2"></i>Search</button>
+          <a href="{{ url_for('flights') }}" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Results count -->
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <span style="font-weight:600;color:var(--navy)">{{ flights|length }} flight{% if flights|length != 1 %}s{% endif %}</span>
+      <span style="color:#6b7280"> found</span>
+      {% if selected_origin or selected_destination or selected_date %}
+        <span style="color:#9ca3af"> for your search</span>
+      {% endif %}
+    </div>
+    <div style="font-size:0.8rem;color:#9ca3af"><i class="bi bi-sort-down me-1"></i>Sorted by departure</div>
+  </div>
+
+  <!-- Flight Cards -->
+  {% if flights %}
+    {% for f in flights %}
+    <div class="flight-card">
+      <div class="flight-header">
+        <span class="flight-number"><i class="bi bi-airplane-fill me-2"></i>{{ f.flight_number }}</span>
+        <div class="d-flex align-items-center gap-2">
+          <span class="seats-badge" style="color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.08)">
+            <i class="bi bi-chair me-1"></i>{{ f.available_seats }} seats left
+          </span>
+          <span class="flight-status status-scheduled">● Scheduled</span>
+        </div>
+      </div>
+      <div class="flight-body">
+        <div class="row align-items-center g-3">
+          <div class="col-lg-5">
+            <div class="route-display">
+              <div class="text-center">
+                <div class="city-name">{{ f.origin }}</div>
+                <div class="city-time">{{ f.departure_time }}</div>
+              </div>
+              <div class="route-line flex-fill px-2">
+                <div class="plane-icon">✈</div>
+                <div class="line"></div>
+                <div style="font-size:0.7rem;color:#9ca3af;margin-top:0.3rem">Direct</div>
+              </div>
+              <div class="text-center">
+                <div class="city-name">{{ f.destination }}</div>
+                <div class="city-time">{{ f.arrival_time }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 text-center">
+            <div style="font-size:0.75rem;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.3rem">
+              <i class="bi bi-calendar3 me-1"></i>Date
+            </div>
+            <div style="font-weight:600;color:var(--navy)">{{ f.departure_date }}</div>
+            <div class="price-options justify-content-center">
+              <span class="price-pill price-eco">Eco ₹{{ "{:,.0f}".format(f.economy_price) }}</span>
+              <span class="price-pill price-biz">Biz ₹{{ "{:,.0f}".format(f.business_price) }}</span>
+              <span class="price-pill price-first">1st ₹{{ "{:,.0f}".format(f.first_class_price) }}</span>
+            </div>
+          </div>
+          <div class="col-lg-2 text-center">
+            <div class="price-tag">
+              <div class="price-class">Economy from</div>
+              <div class="price-amount">₹{{ "{:,.0f}".format(f.economy_price) }}</div>
+            </div>
+          </div>
+          <div class="col-lg-2 text-end">
+            {% if f.available_seats > 0 %}
+            <a href="{{ url_for('book', flight_id=f.id) }}" class="btn btn-gold w-100">
+              Book Now <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+            {% else %}
+            <button class="btn btn-secondary w-100" disabled>Sold Out</button>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+  {% else %}
+    <div class="no-flights">
+      <div class="icon">✈️</div>
+      <h4 style="color:var(--navy)">No flights found</h4>
+      <p>Try adjusting your search filters or <a href="{{ url_for('flights') }}" style="color:var(--sky)">view all flights</a>.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
